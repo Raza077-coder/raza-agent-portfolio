@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RAZA AGENT — Autonomous AI</title>
+<meta name="description" content="Raza Agent — Autonomous AI Software Engineer & Digital Marketer. Building agents. Deploying future." />
+<style>
+  :root {
+    --neon-blue: #00d4ff;
+    --neon-purple: #7b2ffc;
+    --bg-dark: #05060f;
+    --glass-bg: rgba(255, 255, 255, 0.06);
+    --glass-border: rgba(255, 255, 255, 0.15);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow-x: hidden; }
+  body {
+    background: radial-gradient(circle at 20% 20%, #0a0f2e 0%, var(--bg-dark) 60%);
+    color: #eaf6ff;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    overflow: hidden;
+  }
+  #bg-canvas { position: fixed; inset: 0; z-index: 0; display: block; }
+
+  .card {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    width: min(92vw, 560px);
+    padding: 2.4rem 2rem;
+    text-align: center;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 0 60px rgba(0, 212, 255, 0.15), 0 0 120px rgba(123, 47, 252, 0.12);
+    animation: fadeUp 1.2s ease both;
+  }
+  @keyframes fadeUp { from { opacity: 0; transform: translate(-50%, -46%); } to { opacity: 1; transform: translate(-50%, -50%); } }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--neon-blue);
+    border: 1px solid rgba(0, 212, 255, 0.4);
+    padding: 4px 14px;
+    border-radius: 999px;
+    margin-bottom: 1rem;
+    background: rgba(0, 212, 255, 0.08);
+  }
+  h1 {
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+  }
+  .subtitle {
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    color: #b9c8e0;
+    margin-bottom: 0.4rem;
+  }
+  .typing {
+    font-size: 0.95rem;
+    color: #8fa3c4;
+    min-height: 1.4em;
+    margin-bottom: 1.6rem;
+  }
+  .typing::after { content: '|'; color: var(--neon-blue); animation: blink 0.8s step-end infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .buttons { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    text-decoration: none;
+    padding: 0.8rem 1.6rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid transparent;
+  }
+  .btn-primary {
+    background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+    color: #05060f;
+    box-shadow: 0 0 24px rgba(0, 212, 255, 0.4);
+  }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 0 40px rgba(0, 212, 255, 0.6); }
+  .btn-ghost {
+    color: var(--neon-blue);
+    border-color: rgba(0, 212, 255, 0.5);
+    background: rgba(0, 212, 255, 0.05);
+  }
+  .btn-ghost:hover { transform: translateY(-3px); box-shadow: 0 0 24px rgba(0, 212, 255, 0.3); }
+
+  .links { margin-top: 1.4rem; font-size: 0.8rem; color: #7d8fb0; }
+  .links a { color: var(--neon-purple); text-decoration: none; }
+  .links a:hover { text-decoration: underline; }
+
+  .hint {
+    position: fixed;
+    bottom: 18px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    font-size: 0.75rem;
+    color: #5a6b8c;
+    letter-spacing: 1px;
+  }
+
+  @media (max-width: 600px) {
+    .card { padding: 1.6rem 1.2rem; }
+    .buttons { flex-direction: column; }
+    .btn { width: 100%; text-align: center; }
+  }
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+
+<div class="card">
+  <div class="badge">Autonomous AI Engineer</div>
+  <h1>🚀 Raza Agent</h1>
+  <div class="subtitle">Autonomous AI</div>
+  <div class="typing" id="typing"></div>
+  <div class="buttons">
+    <a class="btn btn-primary" id="btn-live" href="#" target="_blank" rel="noopener">View Live Agents</a>
+    <a class="btn btn-ghost" id="btn-hire" href="#" target="_blank" rel="noopener">Hire Raza</a>
+  </div>
+  <div class="links">
+    <span id="live-link"></span> · <span id="github-link"></span>
+  </div>
+</div>
+
+<div class="hint">Move your mouse — the universe follows ✦</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  const canvas = document.getElementById('bg-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.set(0, 0, 9);
+
+  const mouse = { x: 0, y: 0 };
+  const target = { x: 0, y: 0 };
+
+  scene.add(new THREE.AmbientLight(0x404060, 0.6));
+  const blueLight = new THREE.PointLight(0x00d4ff, 1.2, 40);
+  blueLight.position.set(6, 4, 6);
+  scene.add(blueLight);
+  const purpleLight = new THREE.PointLight(0x7b2ffc, 1.2, 40);
+  purpleLight.position.set(-6, -3, 5);
+  scene.add(purpleLight);
+
+  const humanoid = new THREE.Group();
+  const wireMat = new THREE.MeshBasicMaterial({ color: 0x00d4ff, wireframe: true, transparent: true, opacity: 0.85 });
+  const wireMat2 = new THREE.MeshBasicMaterial({ color: 0x7b2ffc, wireframe: true, transparent: true, opacity: 0.7 });
+
+  const head = new THREE.Mesh(new THREE.IcosahedronGeometry(0.55, 1), wireMat);
+  head.position.y = 2.1;
+  humanoid.add(head);
+  const torso = new THREE.Mesh(new THREE.OctahedronGeometry(0.7, 0), wireMat2);
+  torso.position.y = 0.9;
+  humanoid.add(torso);
+  const armGeo = new THREE.CylinderGeometry(0.12, 0.12, 1.1, 6);
+  const armL = new THREE.Mesh(armGeo, wireMat);
+  armL.position.set(-0.85, 1.1, 0);
+  armL.rotation.z = 0.2;
+  humanoid.add(armL);
+  const armR = new THREE.Mesh(armGeo, wireMat);
+  armR.position.set(0.85, 1.1, 0);
+  armR.rotation.z = -0.2;
+  humanoid.add(armR);
+  const legGeo = new THREE.CylinderGeometry(0.16, 0.16, 1.2, 6);
+  const legL = new THREE.Mesh(legGeo, wireMat2);
+  legL.position.set(-0.3, -0.5, 0);
+  humanoid.add(legL);
+  const legR = new THREE.Mesh(legGeo, wireMat2);
+  legR.position.set(0.3, -0.5, 0);
+  humanoid.add(legR);
+  const core = new THREE.Mesh(
+    new THREE.SphereGeometry(0.25, 16, 16),
+    new THREE.MeshBasicMaterial({ color: 0x7b2ffc, transparent: true, opacity: 0.5 })
+  );
+  core.position.y = 0.9;
+  humanoid.add(core);
+
+  humanoid.position.set(0, 0.2, 0);
+  humanoid.scale.set(0.9, 0.9, 0.9);
+  scene.add(humanoid);
+
+  const loader = new THREE.FontLoader();
+  loader.load('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/fonts/helvetiker_bold.typeface.json', function (font) {
+    const textGeo = new THREE.TextGeometry('RAZA AGENT', {
+      font: font,
+      size: 0.5,
+      height: 0.12,
+      curveSegments: 6,
+      bevelEnabled: true,
+      bevelThickness: 0.02,
+      bevelSize: 0.02,
+      bevelSegments: 3
+    });
+    textGeo.computeBoundingBox();
+    const box = textGeo.boundingBox;
+    const cx = (box.max.x + box.min.x) / 2;
+    const cy = (box.max.y + box.min.y) / 2;
+    textGeo.translate(-cx, -cy, 0);
+    const textMat = new THREE.MeshStandardMaterial({
+      color: 0x00d4ff,
+      emissive: 0x7b2ffc,
+      emissiveIntensity: 0.6,
+      metalness: 0.6,
+      roughness: 0.3
+    });
+    const textMesh = new THREE.Mesh(textGeo, textMat);
+    textMesh.position.set(0, -2.4, 0);
+    scene.add(textMesh);
+    window.__razaText = textMesh;
+  });
+
+  const PARTICLE_COUNT = 1200;
+  const positions = new Float32Array(PARTICLE_COUNT * 3);
+  const colors = new Float32Array(PARTICLE_COUNT * 3);
+  const blue = new THREE.Color(0x00d4ff);
+  const purple = new THREE.Color(0x7b2ffc);
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 30;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 20;
+    const c = Math.random() > 0.5 ? blue : purple;
+    colors[i * 3] = c.r;
+    colors[i * 3 + 1] = c.g;
+    colors[i * 3 + 2] = c.b;
+  }
+  const pGeo = new THREE.BufferGeometry();
+  pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  pGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  const pMat = new THREE.PointsMaterial({
+    size: 0.06,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.9,
+    blending: THREE.AdditiveBlending
+  });
+  const particles = new THREE.Points(pGeo, pMat);
+  scene.add(particles);
+
+  window.addEventListener('mousemove', function (e) {
+    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  });
+
+  window.addEventListener('resize', function () {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  const phrases = [
+    'Building agents. Deploying future.',
+    'Autonomous AI Software Engineer & Digital Marketer',
+    'Assalam-o-Alaikum! I am Raza Agent.',
+    'I build, deploy, and market AI agents.'
+  ];
+  let pi = 0, ci = 0, deleting = false;
+  function typeLoop() {
+    const current = phrases[pi];
+    document.getElementById('typing').textContent = current.slice(0, ci);
+    if (!deleting) {
+      if (ci < current.length) { ci++; setTimeout(typeLoop, 60); }
+      else { deleting = true; setTimeout(typeLoop, 1800); }
+    } else {
+      if (ci > 0) { ci--; setTimeout(typeLoop, 30); }
+      else { deleting = false; pi = (pi + 1) % phrases.length; setTimeout(typeLoop, 400); }
+    }
+  }
+  typeLoop();
+
+  const GITHUB_URL = 'https://github.com/Raza077-coder';
+  const LIVE_URL = 'https://raza077-coder.github.io/raza-agent-portfolio/';
+  document.getElementById('btn-live').href = LIVE_URL || GITHUB_URL || '#';
+  document.getElementById('btn-hire').href = 'https://www.linkedin.com/in/raza077-coder';
+  document.getElementById('github-link').innerHTML = GITHUB_URL ? '<a href="' + GITHUB_URL + '" target="_blank" rel="noopener">GitHub</a>' : '';
+  document.getElementById('live-link').innerHTML = LIVE_URL ? '<a href="' + LIVE_URL + '" target="_blank" rel="noopener">Live Demo</a>' : '';
+
+  function animate() {
+    requestAnimationFrame(animate);
+    target.x += (mouse.x - target.x) * 0.05;
+    target.y += (mouse.y - target.y) * 0.05;
+    humanoid.rotation.y += 0.008;
+    humanoid.rotation.x = Math.sin(Date.now() * 0.0005) * 0.1;
+    camera.position.x = target.x * 1.2;
+    camera.position.y = target.y * 0.8;
+    camera.lookAt(0, 0, 0);
+    particles.rotation.y += 0.0004;
+    particles.position.x = target.x * 0.6;
+    particles.position.y = target.y * 0.4;
+    if (window.__razaText) {
+      window.__razaText.rotation.y += 0.01;
+    }
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+</script>
+</body>
+</html>
